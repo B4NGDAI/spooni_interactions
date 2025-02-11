@@ -129,7 +129,7 @@ local function IsCompatible(t, ped)
     return not t.isCompatible or t.isCompatible(ped)
 end
 
-function ApplyInteractionToPed(ped, spawnPos)
+local function ApplyInteractionToPed(ped, spawnPos)
     local pedCoords = vector3(spawnPos.x, spawnPos.y, spawnPos.z)
     availableInteractions = {}
 
@@ -183,7 +183,6 @@ function ApplyInteractionToPed(ped, spawnPos)
 
     return false
 end
-
 exports('ApplyInteractionToPed', ApplyInteractionToPed)
 
 local function SortInteractions(a, b)
