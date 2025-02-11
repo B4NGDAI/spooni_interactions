@@ -4,9 +4,14 @@ local CurrentInteraction = nil
 local InMenu = false
 local MaxRadius = 0.0
 local promptGroup = GetRandomIntInRange(0, 0xffffff)
-local MenuData = exports.vorp_menu:GetMenuData()
 local StartingCoords = nil
 local UIPrompt = {}
+
+local MenuData = {}
+
+TriggerEvent("rsg-menubase:getData", function(call)
+    MenuData = call
+end)
 
 UIPrompt.activate = function(title)
     local label = CreateVarString(10, 'LITERAL_STRING', title)
