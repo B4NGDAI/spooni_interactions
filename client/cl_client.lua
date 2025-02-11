@@ -129,6 +129,63 @@ local function IsCompatible(t, ped)
     return not t.isCompatible or t.isCompatible(ped)
 end
 
+function ApplyInteractionToPed(ped, spawnPos)
+    local pedCoords = vector3(spawnPos.x, spawnPos.y, spawnPos.z)
+    availableInteractions = {}
+
+    for object in EnumerateObjects() do
+        local objectCoords = GetEntityCoords(object)
+
+        for _, interaction in ipairs(Config.Interactions) do
+            if interaction.objects then
+                local modelName = HasCompatibleModel(object, interaction.objects)
+                if modelName and #(pedCoords - objectCoords) <= interaction.radius then
+                    if interaction.scenarios then
+                        for _, scenario in ipairs(interaction.scenarios) do
+                            if IsCompatible(scenario, ped) then
+                                table.insert(
+                                    availableInteractions,
+                                    {
+                                        x = interaction.x,
+                                        y = interaction.y,
+                                        z = interaction.z,
+                                        heading = interaction.heading,
+                                        scenario = scenario.name,
+                                        object = object,
+                                        modelName = modelName
+                                    }
+                                )
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    if #availableInteractions > 0 then
+        local chosenInteraction = availableInteractions[math.random(1, #availableInteractions)]
+        local objectHeading = GetEntityHeading(chosenInteraction.object)
+        local objectCoords = GetEntityCoords(chosenInteraction.object)
+        
+        local r = math.rad(objectHeading)
+        local cosr = math.cos(r)
+        local sinr = math.sin(r)
+        
+        local x = chosenInteraction.x * cosr - chosenInteraction.y * sinr + objectCoords.x
+        local y = chosenInteraction.y * cosr + chosenInteraction.x * sinr + objectCoords.y
+        local z = chosenInteraction.z + objectCoords.z
+        local h = chosenInteraction.heading + objectHeading
+        
+        TaskStartScenarioAtPosition(ped, GetHashKey(chosenInteraction.scenario), x, y, z, h, -1, false, true)
+        return true
+    end
+
+    return false
+end
+
+exports('ApplyInteractionToPed', ApplyInteractionToPed)
+
 local function SortInteractions(a, b)
     if a.distance == b.distance then
         if a.object == b.object then
