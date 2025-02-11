@@ -19,7 +19,3 @@ client_scripts {
 shared_scripts {
 	'shared/*.lua',
 }
-
-dependencies {
-    'vorp_menu',
-}
